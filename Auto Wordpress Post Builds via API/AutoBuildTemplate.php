@@ -8,7 +8,7 @@
  get_header();
 
  //Delete all current Posts
-  $mycustomposts = get_posts( array( 'post_type' => 'jobs', 'numberposts' => -1));
+  $mycustomposts = get_posts( array( 'post_type' => 'datas', 'numberposts' => -1));
   foreach( $mycustomposts as $mypost ) {
     // Deletes each post.
     wp_delete_post( $mypost->ID, true);
@@ -35,7 +35,7 @@
 
 
 //Grab the full body
-$svgJobRequest = wp_remote_get( ''//url redacted due to security,
+$yourdataRequest = wp_remote_get( ''//url redacted due to security,
  array(
 
  'headers' => array(
@@ -44,7 +44,7 @@ $svgJobRequest = wp_remote_get( ''//url redacted due to security,
 ),
 ));
 
-if( is_wp_error( $svgJobRequest ) ) {
+if( is_wp_error( $yourdataRequest ) ) {
   	return false;
   echo '<div class="container">';
    echo '<h1>';
@@ -54,17 +54,17 @@ if( is_wp_error( $svgJobRequest ) ) {
 
 }
 
-$jobBody = json_decode(wp_remote_retrieve_body( $svgJobRequest ));
+$dataBody = json_decode(wp_remote_retrieve_body( $yourdataRequest ));
 
-      foreach($jobBody->searchResults as $job) {
-       $jobUrl = $job->portalUrl;
-       $jobId = $job->id;
-       $jobDate = $job->updatedDate;
-       $jobApiUrl =$job->self;
+      foreach($dataBody->searchResults as $data) {
+       $dataUrl = $data->portalUrl;
+       $dataId = $data->id;
+       $dataDate = $data->updatedDate;
+       $dataApiUrl =$data->self;
 
-       //Grab the individual job details
+       //Grab the individual data details
 
-       $svgJobListing = wp_remote_get( 'https://urlredacted.com/'.$jobId.'?fields=jobtitle,overview,responsibilities,qualifications,id,positioncategory,positiontype,joblocation',
+       $yourdataListing = wp_remote_get( 'https://urlredacted.com/'.$dataId.'?fields=datatitle,overview,responsibilities,qualifications,id,positioncategory,positiontype,datalocation',
         array(
 
         'headers' => array(
@@ -73,28 +73,28 @@ $jobBody = json_decode(wp_remote_retrieve_body( $svgJobRequest ));
        ),
        ));
 
-       $jobListingBody = json_decode(wp_remote_retrieve_body( $svgJobListing ));
+       $dataListingBody = json_decode(wp_remote_retrieve_body( $yourdataListing ));
 
             // echo '<pre>';
-            // print_r($svgJobListing);
+            // print_r($yourdataListing);
             // echo '</pre>';
 
-         $jobName = $jobListingBody->jobtitle;
-         $jobResponsibilities= strip_tags($jobListingBody->responsibilities , '<ul> <li>');
-         $jobOverview = rip_tags($jobListingBody->overview);
-         $jobQualifications = strip_tags($jobListingBody->qualifications, '<ul> <li>');
-         $jobPosType = $jobListingBody->positiontype->value;
-         $jobIdNumber = $jobListingBody->id;
-         $jobLink = $jobUrl;
-         $jobDepartment = $jobListingBody->positioncategory->value;
+         $dataName = $dataListingBody->datatitle;
+         $dataResponsibilities= strip_tags($dataListingBody->responsibilities , '<ul> <li>');
+         $dataOverview = rip_tags($dataListingBody->overview);
+         $dataQualifications = strip_tags($dataListingBody->qualifications, '<ul> <li>');
+         $dataPosType = $dataListingBody->positiontype->value;
+         $dataIdNumber = $dataListingBody->id;
+         $dataLink = $dataUrl;
+         $dataDepartment = $dataListingBody->positioncategory->value;
 
 
          //Loop through the feed so we can insert each post
            $post_arr = array(
-             'post_title' => $jobName, //Title of post -> Name
-             'post_type' =>'jobs',
+             'post_title' => $dataName, //Title of post -> Name
+             'post_type' =>'datas',
               'post_status' => 'publish',
-                'post_category' => array('51', $jobDepartment)
+                'post_category' => array('51', $dataDepartment)
 
 
 
@@ -104,37 +104,37 @@ $jobBody = json_decode(wp_remote_retrieve_body( $svgJobRequest ));
            $post_agent = wp_insert_post($post_arr, true);
 
            // save values in post - Fields are created using ACF and adding the respective field keys here for data inserts
-           $jobName_key = "field_1234";
-           $value = $jobName;
-           update_field( $jobName_key, $value, $post_agent );
+           $dataName_key = "field_1234";
+           $value = $dataName;
+           update_field( $dataName_key, $value, $post_agent );
 
-           $jobID_key = "field_12345";
-           $value = $jobIdNumber;
-           update_field( $jobID_key, $value, $post_agent );
+           $dataID_key = "field_12345";
+           $value = $dataIdNumber;
+           update_field( $dataID_key, $value, $post_agent );
 
-           $jobOverview_key = "field_13456";
-           $value = $jobOverview;
-           update_field(  $jobOverview_key, $value, $post_agent );
+           $dataOverview_key = "field_13456";
+           $value = $dataOverview;
+           update_field(  $dataOverview_key, $value, $post_agent );
 
-           $jobResponsibilities_key = "field_1234567";
-           $value = $jobResponsibilities;
-           update_field( $jobResponsibilities_key, $value, $post_agent );
+           $dataResponsibilities_key = "field_1234567";
+           $value = $dataResponsibilities;
+           update_field( $dataResponsibilities_key, $value, $post_agent );
 
-           $jobQualifications_key = "field_12345678";
-           $value = $jobQualifications;
-           update_field( $jobQualifications_key, $value, $post_agent );
+           $dataQualifications_key = "field_12345678";
+           $value = $dataQualifications;
+           update_field( $dataQualifications_key, $value, $post_agent );
 
-            $jobDepartment_key = "field_123456789";
-            $value = $jobDepartment;
-            update_field( $jobDepartment_key, $value, $post_agent );
+            $dataDepartment_key = "field_123456789";
+            $value = $dataDepartment;
+            update_field( $dataDepartment_key, $value, $post_agent );
 
-            $jobType_key = "field_1234567890";
-            $value = $jobPosType;
-            update_field( $jobType_key, $value, $post_agent );
+            $dataType_key = "field_1234567890";
+            $value = $dataPosType;
+            update_field( $dataType_key, $value, $post_agent );
 
-            $jobUrl_key = "field_12345678901";
-            $value = $jobLink;
-            update_field( $jobUrl_key, $value, $post_agent );
+            $dataUrl_key = "field_12345678901";
+            $value = $dataLink;
+            update_field( $dataUrl_key, $value, $post_agent );
 
 
 
