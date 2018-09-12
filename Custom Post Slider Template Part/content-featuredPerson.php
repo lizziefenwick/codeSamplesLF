@@ -68,7 +68,7 @@ $people_query = new WP_Query( $args );
 	 	),
 	 );
 	 $mobilepeople_query = new WP_Query( $args );
-
+ 
 	 ?>
 	 <div id="carousel" class="swiper-container mobileCarousel" style="padding-left:25px; padding-right:25px;">
 	 <div id="carousel-thumbs" class="carousel carousel-thumbnails" >
